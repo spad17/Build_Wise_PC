@@ -1,0 +1,17 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <p class="eyebrow">С возвращением</p>
+    <h1>Войти в аккаунт</h1>
+    <p class="muted">Продолжите работу со своими сборками.</p>
+
+    <%= form_with scope: :session, url: login_path, class: "auth-form" do |form| %>
+      <%= form.label :email, "Email" %>
+      <%= form.email_field :email, required: true, autocomplete: "email", autofocus: true %>
+      <%= form.label :password, "Пароль" %>
+      <%= form.password_field :password, required: true, autocomplete: "current-password" %>
+      <%= form.submit "Войти", class: "button button-primary button-full" %>
+    <% end %>
+
+    <p class="auth-switch">Нет аккаунта? <%= link_to "Зарегистрироваться", signup_path %></p>
+  </div>
+</section>

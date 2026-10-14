@@ -1,0 +1,30 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <p class="eyebrow">Build Wise PC</p>
+    <h1>Создать аккаунт</h1>
+    <p class="muted">Сохраняйте свои сборки и управляйте ими.</p>
+
+    <% if @user.errors.any? %>
+      <div class="error-box" role="alert">
+        <strong>Не удалось создать аккаунт:</strong>
+        <ul>
+          <% @user.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @user, url: signup_path, class: "auth-form" do |form| %>
+      <%= form.label :username, "Имя пользователя" %>
+      <%= form.text_field :username, required: true, autocomplete: "username", autofocus: true %>
+      <%= form.label :email, "Email" %>
+      <%= form.email_field :email, required: true, autocomplete: "email" %>
+      <%= form.label :password, "Пароль" %>
+      <%= form.password_field :password, required: true, autocomplete: "new-password" %>
+      <%= form.label :password_confirmation, "Подтверждение пароля" %>
+      <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password" %>
+      <%= form.submit "Зарегистрироваться", class: "button button-primary button-full" %>
+    <% end %>
+
+    <p class="auth-switch">Уже есть аккаунт? <%= link_to "Войти", login_path %></p>
+  </div>
+</section>

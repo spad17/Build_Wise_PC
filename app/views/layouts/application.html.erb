@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>Build Wise PC</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <%= link_to "Build Wise PC", root_path, class: "brand" %>
+        <nav class="navigation" aria-label="Основная навигация">
+          <%= link_to "Главная", root_path, class: "nav-link" %>
+          <% if logged_in? %>
+            <%= link_to "Мои сборки", my_builds_path, class: "nav-link" %>
+            <span class="user-name">Привет, <strong><%= current_user.username %></strong></span>
+            <%= button_to "Выйти", logout_path, method: :delete, class: "button button-ghost", form_class: "logout-form" %>
+          <% else %>
+            <%= link_to "Войти", login_path, class: "nav-link" %>
+            <%= link_to "Регистрация", signup_path, class: "button button-primary" %>
+          <% end %>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container page-content">
+      <% flash.each do |type, message| %>
+        <div class="flash flash-<%= type %>" role="alert"><%= message %></div>
+      <% end %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

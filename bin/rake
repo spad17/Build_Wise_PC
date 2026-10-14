@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+require_relative "../config/boot"
+require "rake"
+load File.expand_path("../Rakefile", __dir__)

@@ -1,0 +1,18 @@
+ru:
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: "не может быть пустым"
+      taken: "уже существует"
+      invalid: "имеет неверный формат"
+      confirmation: "не совпадает с полем %{attribute}"
+      too_long: "слишком длинный (максимум %{count} символов)"
+      too_short: "слишком короткий (минимум %{count} символов)"
+      password_too_long: "слишком длинный (максимум 72 байта)"
+  activerecord:
+    attributes:
+      user:
+        username: "Имя пользователя"
+        email: "Email"
+        password: "Пароль"
+        password_confirmation: "Подтверждение пароля"
