@@ -9,4 +9,5 @@ Rails.application.routes.draw do
   delete "/logout", to: "sessions#destroy", as: :logout
 
   get "/my-builds", to: "builds#index", as: :my_builds
+  get "/ui-kit", to: "ui_kit#index", as: :ui_kit
 end
