@@ -15,7 +15,7 @@ class BuildItem < ApplicationRecord
   def component_is_compatible_with_build
     return if build.blank? || component.blank?
 
-    unless component.platform == "universal" || component.platform == build.platform
+    unless component.supports_platform?(build.platform)
       errors.add(:component, "не соответствует платформе сборки")
       return
     end

@@ -1,0 +1,22 @@
+<section class="page-heading"><p class="eyebrow">Ваша конфигурация / <%= @build.platform %></p><h1><%= @build.name %></h1><p class="muted"><%= @build.purpose %> · Сохранено в вашем аккаунте</p></section>
+<div class="build-summary panel"><div><span class="kit-label">Стоимость сборки</span><strong><%= rubles(@build.total_price_cents) %></strong></div><div><span class="kit-label">Остаток бюджета</span><strong><%= rubles(@build.remaining_budget_cents) %></strong></div><span class="kit-badge <%= @build.complete_configuration? ? 'kit-badge-success' : 'kit-badge-warning' %>"><%= @build.complete_configuration? ? "Комплект полный · проверен" : "Требуется подбор" %></span></div>
+<div class="page-actions"><%= link_to "Мои сборки", my_builds_path, class: "button button-outline" %><%= link_to "Каталог для этой сборки", components_path(build_id: @build.id, platform: @build.platform), class: "button button-outline" %><button type="button" class="button button-secondary" data-print>Печать / PDF</button></div>
+<% if @items.any? { |item| !item.component.available? } %><div class="flash flash-alert">В этой сохранённой сборке есть детали из старого учебного каталога. Нажмите «Пересобрать ПК», чтобы подобрать реальные комплектующие. Старые детали не фиксируются.</div><% end %>
+<%= form_with url: optimize_build_path(@build), method: :patch, class: "config-layout", id: "optimize-form" do %>
+  <section aria-label="Состав сборки" class="parts-list">
+    <% @items.each do |item| %><% part = item.component %>
+      <article class="panel part-row"><span class="part-icon"><%= part.category.upcase %></span><div class="part-info"><span class="kit-label"><%= Component::CATEGORY_NAMES[part.category] %></span><%= link_to part.name, component_path(part, build_id: @build.id), class: "part-title", data: { component_modal: true } %><p class="muted"><%= part.platform %><%= " · #{part.memory_gb} ГБ" if part.memory_gb %><%= " · #{part.capacity_gb} ГБ" if part.capacity_gb %><%= " · #{part.power_watts} Вт" if part.power_watts %></p><%= link_to "Выбрать замену →", components_path(category: part.category, platform: @build.platform, build_id: @build.id), class: "text-link" %></div><div class="part-price"><strong><%= rubles(part.price_cents) %></strong><label class="lock-option"><%= check_box_tag "locked_ids[]", part.id, item.locked? && part.available?, disabled: !part.available?, id: "lock_#{part.id}" %> Оставить неизменным</label></div></article>
+    <% end %>
+  </section>
+  <aside class="panel editor-form config-aside"><p class="eyebrow">Настроить подбор</p><h2>Оставьте лучшее.</h2><p class="muted">Отметьте детали, которые нужно сохранить. Остальные подберём под новые условия.</p>
+    <%= label_tag "build_purpose", "Задача" %><%= select_tag "build[purpose]", options_for_select(BuildOptimizer::PURPOSE_WEIGHTS.keys, @build.purpose), id: "build_purpose" %>
+    <%= label_tag "build_budget_rubles", "Бюджет, ₽" %><%= number_field_tag "build[budget_rubles]", @build.budget_cents / 100, min: 10000, max: 5000000, required: true, id: "build_budget_rubles" %>
+    <%= label_tag "build_wishes", "Пожелания" %><%= text_area_tag "build[wishes]", @build.wishes, rows: 4, maxlength: 2000, id: "build_wishes", placeholder: "32 ГБ ОЗУ, SSD 1 ТБ, тихий" %>
+    <p class="kit-help">Распознано: ОЗУ от <%= @preferences[:memory_gb] %> ГБ, SSD от <%= @preferences[:storage_gb] %> ГБ, тишина: <%= @preferences[:quiet] ? "приоритет" : "без приоритета" %>. Другие пожелания сохранены как заметка.</p>
+    <label class="lock-option"><%= check_box_tag :change_unlocked, "1" %> Заменить все незакреплённые детали другими</label>
+    <p class="kit-help">Без этой галочки оптимальные детали могут остаться прежними. Фиксация сохраняется после успешного подбора.</p>
+    <%= submit_tag "Пересобрать ПК", class: "button button-primary" %>
+  </aside>
+<% end %>
+<p class="catalog-note">Цены ориентировочные. Проверяются сокеты и крепления кулера, тип и объём памяти, основные габариты, рекомендации по мощности БП и запас питания 25%. Версию BIOS, QVL, кабели и поддержку ПО уточняйте по ссылкам производителей.</p>
+<%= button_to "Удалить сборку", @build, method: :delete, class: "button button-danger", data: { confirm: "Удалить эту сборку?" } %>

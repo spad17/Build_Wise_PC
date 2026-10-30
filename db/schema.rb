@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_15_000003) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_30_000000) do
   create_table "build_items", force: :cascade do |t|
     t.integer "build_id", null: false
     t.integer "component_id", null: false
     t.integer "quantity", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "locked", default: false, null: false
     t.index ["build_id", "component_id"], name: "index_build_items_on_build_id_and_component_id", unique: true
     t.index ["build_id"], name: "index_build_items_on_build_id"
     t.index ["component_id"], name: "index_build_items_on_component_id"
@@ -31,6 +32,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_000003) do
     t.integer "budget_cents", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "wishes"
     t.index ["status"], name: "index_builds_on_status"
     t.index ["user_id", "created_at"], name: "index_builds_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_builds_on_user_id"
@@ -59,9 +61,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_000003) do
     t.boolean "available", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
+    t.integer "performance", default: 1, null: false
+    t.string "memory_type"
+    t.integer "capacity_gb"
+    t.boolean "quiet", default: false, null: false
+    t.json "specs", default: {}, null: false
     t.index ["category"], name: "index_components_on_category"
     t.index ["manufacturer", "name"], name: "index_components_on_manufacturer_and_name", unique: true
     t.index ["platform"], name: "index_components_on_platform"
+  end
+
+  create_table "reviews", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "component_id", null: false
+    t.integer "rating", null: false
+    t.text "body", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["component_id"], name: "index_reviews_on_component_id"
+    t.index ["user_id", "component_id"], name: "index_reviews_on_user_id_and_component_id", unique: true
+    t.index ["user_id"], name: "index_reviews_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -78,4 +98,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_15_000003) do
   add_foreign_key "builds", "users"
   add_foreign_key "compatibility_rules", "components"
   add_foreign_key "compatibility_rules", "components", column: "compatible_component_id"
+  add_foreign_key "reviews", "components"
+  add_foreign_key "reviews", "users"
 end

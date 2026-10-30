@@ -4,10 +4,11 @@
     <h1>Соберите идеальный ПК.</h1>
     <p class="hero-copy">Сохраняйте конфигурации, сравнивайте комплектующие и возвращайтесь к своим сборкам в любое время.</p>
     <% if logged_in? %>
-      <%= link_to "Открыть мои сборки", my_builds_path, class: "button button-primary button-large" %>
+      <%= link_to "Собрать новый ПК", new_build_path, class: "button button-primary button-large" %>
     <% else %>
-      <%= link_to "Начать сборку", signup_path, class: "button button-primary button-large" %>
+      <%= link_to "Начать сборку", new_build_path, class: "button button-primary button-large" %>
     <% end %>
+    <%= link_to "Изучить комплектующие →", components_path, class: "home-catalog-link" %>
   </div>
   <div class="hero-card" aria-label="Умный подбор конфигурации компьютера">
     <div class="hero-card-header">

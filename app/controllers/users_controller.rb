@@ -9,8 +9,9 @@ class UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
+      return_to = session[:return_to]
       log_in(@user)
-      redirect_to root_path, notice: "Регистрация прошла успешно. Добро пожаловать, #{@user.username}!"
+      redirect_to return_to.presence || root_path, notice: "Регистрация прошла успешно. Добро пожаловать, #{@user.username}!"
     else
       flash.now[:alert] = "Проверьте данные формы."
       render :new, status: :unprocessable_entity

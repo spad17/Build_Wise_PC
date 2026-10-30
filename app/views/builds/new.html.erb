@@ -1,0 +1,27 @@
+<section class="page-heading">
+  <p class="eyebrow">01 / Параметры → 02 / Готовый ПК → 03 / Настройка</p>
+  <h1>Ваш следующий ПК.</h1>
+  <p class="muted">Выберите архитектуру, задачи и бюджет. Мы подберём восемь совместимых компонентов.</p>
+</section>
+<div class="config-layout">
+  <%= form_with model: @build, class: "panel editor-form" do |form| %>
+    <% if @build.errors.any? %><div class="error-box" role="alert"><ul><% @build.errors.full_messages.each do |message| %><li><%= message %></li><% end %></ul></div><% end %>
+    <%= form.label :name, "Название сборки" %>
+    <%= form.text_field :name, required: true, maxlength: 100 %>
+    <fieldset><legend>Архитектура</legend><div class="architecture-grid">
+      <% platform_options.each do |label, value| %>
+        <label class="architecture-option"><%= form.radio_button :platform, value %><strong><%= label %></strong><span><%= { "x86-64" => "Для дома, учёбы и игр", "E2K" => "По запросу у МЦСТ · без автоподбора", "Threadripper" => "Для тяжёлых рабочих задач" }[value] %></span></label>
+      <% end %>
+    </div></fieldset>
+    <%= form.label :purpose, "Для чего нужен компьютер?" %>
+    <%= form.select :purpose, BuildOptimizer::PURPOSE_WEIGHTS.keys %>
+    <%= label_tag "build_budget_rubles", "Бюджет, ₽" %>
+    <%= number_field_tag "build[budget_rubles]", @budget_rubles || @build.budget_cents.to_i / 100, min: 10000, max: 5000000, step: 1, required: true, id: "build_budget_rubles" %>
+    <span class="kit-help">От 10 000 до 5 000 000 ₽. Для каждой архитектуры свой минимальный порог.</span>
+    <%= form.label :wishes, "Ваши пожелания" %>
+    <%= form.text_area :wishes, rows: 4, maxlength: 2000, placeholder: "Тихий ПК, минимум 32 ГБ ОЗУ, SSD 1 ТБ" %>
+    <p class="kit-help">Распознаём объём ОЗУ («32 ГБ ОЗУ»), SSD («SSD 1 ТБ») и пожелание «тихий». Объёмы — обязательные минимумы, тишина — приоритет. Остальной текст сохраняется как заметка.</p>
+    <%= form.submit "Подобрать и сохранить ПК", class: "button button-primary" %>
+  <% end %>
+  <aside class="panel config-aside"><p class="eyebrow">Как мы подбираем</p><h2>Больше пользы.<br>В вашем бюджете.</h2><p>Подбор сравнивает сочетания комплектующих, учитывает задачи, совместимость, питание и охлаждение.</p><p>После подбора можно заменить любую деталь, закрепить удачные варианты и подобрать остальные заново.</p><%= link_to "Посмотреть каталог →", components_path, class: "text-link" %><p class="catalog-note">В каталоге — реальные модели Intel, AMD, ASUS, MSI, Kingston и других производителей. Цены ориентировочные, баллы подбора относительные. В карточках есть ссылки на спецификации. E2K — заказ комплектации через поставщика МЦСТ.</p></aside>
+</div>

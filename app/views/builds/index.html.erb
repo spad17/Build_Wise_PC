@@ -3,8 +3,14 @@
   <h1>Мои сборки</h1>
   <p class="muted">Здесь будут храниться ваши конфигурации компьютеров.</p>
 </section>
+<div class="page-actions"><%= link_to "＋ Собрать новый ПК", new_build_path, class: "button button-primary" %><%= link_to "Каталог комплектующих", components_path, class: "button button-outline" %></div>
+<% if @builds.empty? %>
 <section class="empty-state">
   <div class="empty-icon">＋</div>
   <h2>Сборок пока нет</h2>
   <p>Создайте первую конфигурацию, чтобы она появилась в этом разделе.</p>
+  <%= link_to "Создать первую сборку", new_build_path, class: "button button-primary button-large" %>
 </section>
+<% else %>
+  <div class="catalog-grid"><% @builds.each do |build| %><article class="panel build-card"><span class="kit-badge kit-badge-neutral"><%= build.platform %></span><h2><%= link_to build.name, build %></h2><p class="muted"><%= build.purpose %> · <%= build.build_items.size %> компонентов</p><strong class="kit-price"><%= rubles(build.total_price_cents) %></strong><p class="muted">Бюджет <%= rubles(build.budget_cents) %></p><%= link_to "Открыть сборку →", build, class: "button button-primary" %></article><% end %></div>
+<% end %>

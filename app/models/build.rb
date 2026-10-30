@@ -5,8 +5,10 @@ class Build < ApplicationRecord
   belongs_to :user
   has_many :build_items, dependent: :destroy
   has_many :components, through: :build_items
+  validates :wishes, length: { maximum: 2000 }
 
   validates :name, :purpose, :platform, presence: true
+  validates :name, length: { maximum: 100 }
   validates :platform, inclusion: { in: PLATFORMS }
   validates :status, inclusion: { in: STATUSES }
   validates :budget_cents, numericality: { only_integer: true, greater_than: 0 }
@@ -40,5 +42,27 @@ class Build < ApplicationRecord
     item.quantity = item.new_record? ? quantity.to_i : item.quantity.to_i + quantity.to_i
     item.save
     item
+  end
+
+  def complete_configuration?
+    items = build_items.includes(:component).to_a
+    parts = items.map(&:component)
+    return false unless items.all? { |item| item.quantity == 1 }
+    return false unless parts.map(&:category).sort == BuildOptimizer::CATEGORIES.sort
+    return false unless parts.all? { |part| part.supports_platform?(platform) }
+    cpu = parts.find { |part| part.category == "cpu" }
+    cooler = parts.find { |part| part.category == "cooler" }
+    compatible? && within_budget? && BuildOptimizer.power_sufficient?(parts) &&
+      cooler.cools?(cpu)
+  end
+
+  def replace_configuration!(parts, locked_ids: [])
+    transaction do
+      build_items.destroy_all
+      parts.each do |part|
+        build_items.create!(component: part, quantity: 1, locked: locked_ids.include?(part.id))
+      end
+      update!(status: "ready")
+    end
   end
 end

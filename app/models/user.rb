@@ -3,6 +3,7 @@ require "uri"
 class User < ApplicationRecord
   has_secure_password
   has_many :builds, dependent: :destroy
+  has_many :reviews, dependent: :destroy
 
   before_validation :normalize_email
 

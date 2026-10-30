@@ -6,6 +6,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", defer: true %>
   </head>
 
   <body>
@@ -14,13 +15,15 @@
         <%= link_to "Build Wise PC", root_path, class: "brand" %>
         <nav class="navigation" aria-label="Основная навигация">
           <%= link_to "Главная", root_path, class: "nav-link" %>
+          <%= link_to "Собрать ПК", new_build_path, class: "nav-link" %>
+          <%= link_to "Каталог", components_path, class: "nav-link" %>
           <%= link_to "UI Kit", ui_kit_path, class: "nav-link" %>
           <% if logged_in? %>
             <%= link_to "Мои сборки", my_builds_path, class: "nav-link" %>
             <span class="user-name">Привет, <strong><%= current_user.username %></strong></span>
             <%= button_to "Выйти", logout_path, method: :delete, class: "button button-ghost", form_class: "logout-form" %>
           <% else %>
-            <%= link_to "Войти", login_path, class: "nav-link" %>
+            <%= link_to "Войти", login_path, class: "button button-outline" %>
             <%= link_to "Регистрация", signup_path, class: "button button-primary" %>
           <% end %>
         </nav>
@@ -33,5 +36,6 @@
       <% end %>
       <%= yield %>
     </main>
+    <dialog id="component-dialog" aria-labelledby="component-dialog-title"><div class="dialog-header"><h2 id="component-dialog-title">Комплектующее и отзывы</h2><button type="button" class="button button-outline" data-close-dialog aria-label="Закрыть окно">✕</button></div><div id="component-dialog-body" aria-live="polite"></div></dialog>
   </body>
 </html>

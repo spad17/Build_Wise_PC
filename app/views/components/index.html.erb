@@ -1,0 +1,16 @@
+<section class="page-heading"><p class="eyebrow">Комплектующие / <%= @components.count %> вариантов</p><h1>Каталог деталей.</h1><p class="muted">Сравнивайте характеристики, читайте отзывы и выбирайте компоненты своего ПК.</p></section>
+<% if @build %><div class="flash flash-notice">Выбираете замену для «<%= @build.name %>». <%= link_to "Вернуться к сборке →", @build %></div><% end %>
+<%= form_with url: components_path, method: :get, class: "panel catalog-filters editor-form" do %>
+  <% if @build %><%= hidden_field_tag :build_id, @build.id %><% end %>
+  <div><%= label_tag :q, "Поиск" %><%= search_field_tag :q, params[:q], placeholder: "Название или характеристика" %></div>
+  <div><%= label_tag :category, "Категория" %><%= select_tag :category, options_for_select(Component::CATEGORY_NAMES.map { |key, value| [value, key] }, params[:category]), include_blank: "Все компоненты" %></div>
+  <div><%= label_tag :manufacturer, "Производитель" %><%= select_tag :manufacturer, options_for_select(@manufacturers, params[:manufacturer]), include_blank: "Все бренды" %></div>
+  <div><%= label_tag :platform, "Архитектура" %><%= select_tag :platform, options_for_select(platform_options, params[:platform]), include_blank: "Все архитектуры" %></div>
+  <div><%= label_tag :max_price, "Цена до, ₽" %><%= number_field_tag :max_price, params[:max_price], min: 0, max: 5000000 %></div>
+  <%= submit_tag "Показать", class: "button button-primary" %><%= link_to "Сбросить", components_path(build_id: @build&.id), class: "text-link" %>
+<% end %>
+<p class="catalog-note">Реальные модели и спецификации производителей. Цены ориентировочные, наличие в магазинах не отслеживается. Отзывы оставляют пользователи сайта.</p>
+<div class="catalog-grid">
+  <% @components.each do |part| %><article class="panel catalog-card"><div class="kit-card-top"><span class="part-icon"><%= part.category.upcase %></span><span class="kit-badge kit-badge-neutral"><%= part.platform %></span></div><span class="kit-label"><%= part.manufacturer %> · <%= Component::CATEGORY_NAMES[part.category] %></span><h2><%= link_to part.name, component_path(part, build_id: @build&.id), data: { component_modal: true } %></h2><p class="muted"><%= part.memory_type %><%= " · #{part.memory_gb} ГБ" if part.memory_gb %><%= " · SSD #{part.capacity_gb} ГБ" if part.capacity_gb %><%= " · #{part.power_watts} Вт" if part.power_watts %></p><strong class="kit-price"><%= component_price(part) %></strong><%= link_to "Характеристики и отзывы", component_path(part, build_id: @build&.id), class: "button button-outline", data: { component_modal: true } %><% unless part.available? %><span class="kit-badge kit-badge-warning">Комплектация по запросу</span><% end %><% if @build && part.available? %><%= button_to "Выбрать в сборку", replace_component_build_path(@build), method: :patch, params: { component_id: part.id }, class: "button button-primary button-full" %><% end %></article><% end %>
+</div>
+<% if @components.empty? %><div class="empty-state"><h2>Ничего не найдено</h2><p>Попробуйте другую категорию или увеличьте предел цены.</p><%= link_to "Сбросить фильтры", components_path(build_id: @build&.id), class: "button button-primary" %></div><% end %>
