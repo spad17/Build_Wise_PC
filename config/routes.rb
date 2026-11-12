@@ -18,5 +18,7 @@ Rails.application.routes.draw do
   resources :components, only: %i[index show] do
     resources :reviews, only: %i[create update destroy]
   end
+  get "/live-catalog", to: "live_catalog#index", as: :live_catalog
+  get "/live-catalog/data", to: "live_catalog#data", as: :live_catalog_data
   get "/ui-kit", to: "ui_kit#index", as: :ui_kit
 end

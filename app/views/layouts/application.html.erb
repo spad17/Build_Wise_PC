@@ -17,6 +17,7 @@
           <%= link_to "Главная", root_path, class: "nav-link" %>
           <%= link_to "Собрать ПК", new_build_path, class: "nav-link" %>
           <%= link_to "Каталог", components_path, class: "nav-link" %>
+          <%= link_to "Живой каталог", live_catalog_path, class: "nav-link" %>
           <%= link_to "UI Kit", ui_kit_path, class: "nav-link" %>
           <% if logged_in? %>
             <%= link_to "Мои сборки", my_builds_path, class: "nav-link" %>

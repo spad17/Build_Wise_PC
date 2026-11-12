@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_30_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_12_000000) do
   create_table "build_items", force: :cascade do |t|
     t.integer "build_id", null: false
     t.integer "component_id", null: false
@@ -67,7 +67,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_30_000000) do
     t.integer "capacity_gb"
     t.boolean "quiet", default: false, null: false
     t.json "specs", default: {}, null: false
+    t.string "image_url"
+    t.string "image_credit"
+    t.datetime "data_synced_at"
     t.index ["category"], name: "index_components_on_category"
+    t.index ["data_synced_at"], name: "index_components_on_data_synced_at"
     t.index ["manufacturer", "name"], name: "index_components_on_manufacturer_and_name", unique: true
     t.index ["platform"], name: "index_components_on_platform"
   end

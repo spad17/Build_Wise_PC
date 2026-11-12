@@ -25,6 +25,14 @@ class Component < ApplicationRecord
     price_cents.to_i / 100.0
   end
 
+  def image_path
+    image_url.presence || "/component-images/catalog-fallback.svg"
+  end
+
+  def source_url
+    specs["source_url"].to_s.presence
+  end
+
   scope :for_platform, ->(platform) {
     base = where(platform: [platform, "universal"])
     platform == "Threadripper" ? base.or(where(category: "gpu", platform: "x86-64")) : base

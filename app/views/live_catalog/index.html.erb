@@ -1,0 +1,25 @@
+<section class="live-heading">
+  <div>
+    <p class="eyebrow">Живые данные / каталог</p>
+    <h1>Каталог, который обновляется сам.</h1>
+    <p class="muted">Список, цены и статус позиций подгружаются без перезагрузки страницы. Обновление выполняется каждые 10 секунд.</p>
+  </div>
+  <div class="live-status" data-live-catalog data-endpoint="<%= live_catalog_data_path %>" data-refresh-ms="10000">
+    <span class="live-indicator" data-live-indicator></span>
+    <strong data-live-state>Подключаемся…</strong>
+    <span class="live-updated" data-live-updated>Данные ещё не загружены</span>
+    <button type="button" class="button button-outline button-small" data-live-refresh>Обновить сейчас</button>
+  </div>
+</section>
+
+<section class="panel live-toolbar">
+  <div><%= label_tag :live_query, "Поиск" %><%= search_field_tag :live_query, nil, placeholder: "RTX, Kingston, ASUS…", data: { live_query: true } %></div>
+  <div><%= label_tag :live_category, "Категория" %><%= select_tag :live_category, options_for_select([['Все компоненты', '']] + @categories.map { |key, value| [value, key] }), data: { live_category: true } %></div>
+  <span class="live-count" data-live-count>— позиций</span>
+</section>
+
+<section class="live-grid" data-live-grid aria-live="polite" aria-busy="true">
+  <div class="live-empty">Загружаем актуальные позиции…</div>
+</section>
+
+<%= javascript_include_tag "live_catalog", defer: true %>

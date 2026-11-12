@@ -11,9 +11,19 @@ class HardwareCatalogTest < ActiveSupport::TestCase
     %w[Intel AMD ASUS MSI Kingston SAPPHIRE].each { |brand| assert_includes entries.pluck(:manufacturer), brand }
     entries.each do |attributes|
       assert_match %r{\Ahttps://}, attributes[:specs]["source_url"]
+      assert_match %r{\A(?:https://|/component-images/catalog/)}, attributes[:image_url]
+      assert attributes[:image_credit].present?
       refute_match /Build Wise Demo|BW-/, attributes[:name]
     end
     assert_equal 0, Component.where(manufacturer: "Build Wise Demo", available: true).count
+  end
+
+  test "every imported component receives its own image path" do
+    available = Component.where(available: true).to_a
+
+    assert_equal available.size, available.map(&:image_url).compact.uniq.size
+    assert available.all? { |component| component.data_synced_at.present? }
+    assert HardwareCatalog.entries.none? { |attributes| attributes[:image_url].match?(%r{/catalog/(?:cpu|gpu|motherboard|memory|storage|psu|case|cooler)-}) }
   end
 
   test "repeated import preserves saved builds reviews and archives placeholder records" do

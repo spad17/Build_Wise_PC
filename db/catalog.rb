@@ -1,14 +1,174 @@
 # Specifications: manufacturer pages linked on every entry (checked 2026-10-30).
 # RUB prices and utility points are editorial estimates, not live store offers or benchmarks.
+require "digest"
+
 module HardwareCatalog
+  IMAGE_OVERRIDES = {
+    "AMD Ryzen 7 7800X3D" => [
+      "https://www.amd.com/content/dam/amd/en/images/products/processors/ryzen/2505503-ryzen-7-7800x3d-og.jpg",
+      "Официальное изображение AMD Ryzen 7 7800X3D"
+    ],
+    "AMD Radeon RX 7800 XT 16 ГБ (Reference)" => [
+      "https://d1io3yog0oux5.cloudfront.net/_0627aa6638dff44d3ac521304b25e136/amd/db/834/7308/social_image_resized.jpg",
+      "Официальное изображение AMD Radeon RX 7800 XT"
+    ],
+    "ASUS Dual GeForce RTX 4060 OC 8 ГБ" => [
+      "https://press.asus.com/assets/w_640%2Ch_640/32e0e823-60b0-4e89-8b05-5cfbdd070fd8/DUAL-RTX4060-O8G_Box%2BVGA%2BNV.png",
+      "Официальное изображение ASUS Dual GeForce RTX 4060"
+    ],
+    "MSI GeForce RTX 4070 SUPER 12G VENTUS 2X WHITE" => [
+      "https://storage-asset.msi.com/global/picture/product/product_17046997993c786b97a32cd491dde4c5b09ab12cdb.webp",
+      "Официальное изображение MSI GeForce RTX 4070 SUPER"
+    ],
+    "Kingston FURY Beast DDR5 32 ГБ (2×16) KF560C36BBEK2-32" => [
+      "https://cdn.shopify.com/s/files/1/0518/5073/9904/files/ktc-fury-memory-beast-ddr5-etail-kf-7-1350x550_56860bc5-a066-44cb-961e-16a63934bce9.jpg?v=1680114651",
+      "Официальное изображение Kingston FURY Beast DDR5"
+    ],
+    "Kingston FURY Beast DDR4 16 ГБ (2×8) KF432C16BBK2/16" => [
+      "https://i.ebayimg.com/images/g/KusAAeSw3mtpvx8S/s-l1200.jpg",
+      "Фото страницы товара Kingston FURY Beast DDR4 16 ГБ"
+    ],
+    "Kingston FURY Beast DDR4 32 ГБ (2×16) KF432C16BBK2/32" => [
+      "https://i.ebayimg.com/images/g/DMcAAeSwxJJquOIp/s-l960.jpg",
+      "Фото страницы товара Kingston FURY Beast DDR4 32 ГБ"
+    ],
+    "Kingston FURY Beast DDR5 64 ГБ (2×32) KF560C36BBEK2-64" => [
+      "https://easypc.com.ph/cdn/shop/files/Kingston_Fury_Beast_64gb_KF556C40BBK2-64_2x32_5600MT_s_Ddr5_CL40_Memory_Black_Intel_XMP_1200x1200.png?v=1707891000",
+      "Фото страницы товара Kingston FURY Beast DDR5 64 ГБ"
+    ],
+    "Kingston FURY Renegade Pro DDR5 RDIMM 128 ГБ (4×32) KF560R32RBK4-128" => [
+      "https://media.spdigital.cl/thumbnails/products/1734697908557-a5b2371709f2c80ffadc92587bde6192_083de734_thumbnail_4096.jpg",
+      "Фото страницы товара Kingston FURY Renegade Pro 128 ГБ"
+    ],
+    "Corsair RM750e 750W" => [
+      "https://assets.corsair.com/image/upload/c_scale,q_auto,w_1200/products/rme-series-2025/Gallery/CP-9020295-NA_01.png",
+      "Официальное изображение Corsair RM750e"
+    ],
+    "Corsair RM1000e 1000W" => [
+      "https://res.cloudinary.com/corsair-pwa/image/upload/c_scale,q_auto,w_1200/v1680126573/products/Power-Supply-Units/base-rme-series-2023-psu-config/Gallery/1000W/RM1000e_01.png",
+      "Официальное изображение Corsair RM1000e"
+    ],
+    "Fractal Design Define 7 XL Black Solid" => [
+      "https://cdn3.centrecom.com.au/images/upload/0156263_0.jpeg",
+      "Фото страницы товара Fractal Design Define 7 XL Black Solid"
+    ],
+    "DeepCool AK400" => [
+      "https://fly.bg/uploads/products/as/deepcool_ak400_cpu_air_cooler_1x120mm_pwm_fan_tdp_gwx9n.jpg",
+      "Фото страницы товара DeepCool AK400"
+    ],
+    "DeepCool AK620" => [
+      "https://image.citycenter.jo/cache/catalog/12022/AK6201-1200x1200.jpg",
+      "Фото страницы товара DeepCool AK620"
+    ],
+    "Cooler Master MasterBox NR600 (без ODD)" => [
+      "https://media.topachat.com/media/s1000/619e435aa5c58356de783dfb.webp",
+      "Фото страницы товара Cooler Master MasterBox NR600"
+    ],
+    "Corsair 4000D AIRFLOW" => [
+      "https://www.invidcomputers.com/images/000000000041309044388-base-4000d-airflow-config-Gallery-4000D-AF-BLACK-01.jpg",
+      "Фото страницы товара Corsair 4000D AIRFLOW"
+    ],
+    "MSI MAG A550BN 550W" => [
+      "https://storage-asset.msi.com/global/picture/image/feature/power/Reseller/MAG-A550BN/MAG-A550BN-kv.jpg",
+      "Официальное изображение MSI MAG A550BN"
+    ],
+    "Noctua NH-U14S TR5-SP6" => [
+      "https://www.jib.co.th/img_master/product/original/2024032715124766473_3.jpg",
+      "Фото страницы товара Noctua NH-U14S TR5-SP6"
+    ],
+    "Intel Core i3-12100F" => [
+      "https://plazait.co.id/uploads/products/intel-core-i3-12100f.webp",
+      "Фото страницы товара Intel Core i3-12100F"
+    ],
+    "AMD Ryzen 5 7600" => [
+      "https://www.trippodo.com/730901-medium_default/amd-ryzen-5-7600-processor-38-ghz-32-mb-l2-l3.jpg",
+      "Фото страницы товара AMD Ryzen 5 7600"
+    ],
+    "AMD Ryzen 7 7700" => [
+      "https://images7.kabum.com.br/produtos/fotos/sync_mirakl/1059147/xlarge/Processador-Amd-Ryzen-7-7700-Socket-Am5-5-3ghz-40mb_1784294625.jpg",
+      "Фото страницы товара AMD Ryzen 7 7700"
+    ],
+    "ASUS PRIME H610M-K D4" => [
+      "https://cdn.inet.se/product/1600x900/1903717_0.jpg",
+      "Фото страницы товара ASUS PRIME H610M-K D4"
+    ],
+    "ASUS PRIME B660M-A D4" => [
+      "https://media.ldlc.com/r1600/ld/products/00/05/91/68/LD0005916829_1.jpg",
+      "Фото страницы товара ASUS PRIME B660M-A D4"
+    ],
+    "ASUS TUF GAMING B650-PLUS" => [
+      "https://cdn.awsli.com.br/2500x2500/2557/2557636/produto/207520426/p049032_1-vjbufk.jpg",
+      "Фото страницы товара ASUS TUF GAMING B650-PLUS"
+    ],
+    "ASUS Pro WS TRX50-SAGE WIFI" => [
+      "https://media.solotodo.com/media/products/1881561_picture_1715601110.jpg",
+      "Фото страницы товара ASUS Pro WS TRX50-SAGE WIFI"
+    ],
+    "Intel Core i5-12400F" => [
+      "https://bizweb.dktcdn.net/thumb/1024x1024/100/357/448/products/cpu-intel-i5-12400f-alder-lake.jpg?v=1645495434170",
+      "Фото страницы товара Intel Core i5-12400F"
+    ],
+    "AMD Ryzen Threadripper 7960X" => [
+      "https://pisces.bbystatic.com/image2/BestBuy_US/images/products/56964ac9-7d74-42c6-a525-1ff9ce411de0.jpg%3BmaxHeight%3D1920%3BmaxWidth%3D900?format=webp",
+      "Фото упаковки AMD Ryzen Threadripper 7960X"
+    ],
+    "AMD Ryzen Threadripper 7970X" => [
+      "https://cdn.ibertronica.es/product/MI100-100001351WOF_00001.jpeg",
+      "Фото страницы товара AMD Ryzen Threadripper 7970X"
+    ],
+    "AMD Ryzen Threadripper 7980X" => [
+      "https://cdn.ibertronica.es/product/MI100-000001350_00001.jpeg",
+      "Фото страницы товара AMD Ryzen Threadripper 7980X"
+    ],
+    "SAPPHIRE PULSE Radeon RX 6600 8 ГБ" => [
+      "https://www.fgtec.com.br/media/catalog/product/cache/6630b9e112ee13f7d501bef37f6e88ec/d/e/de77cc9367875762cbd497b4c3f5eef9_1.webp",
+      "Фото страницы товара SAPPHIRE PULSE Radeon RX 6600"
+    ],
+    "Kingston A400 960 ГБ SA400S37/960G" => [
+      "https://www.infotec.com.pe/29924-thickbox_default/disco-solido-ssd-kingston-960gb-sa400s37960g-blister.jpg",
+      "Фото страницы товара Kingston A400 960 ГБ"
+    ],
+    "Kingston KC3000 4096 ГБ SKC3000D/4096G" => [
+      "https://media.kingston.com/kingston/product/ktc-product-ssd-kc3000-4096gb-3-sm.jpg",
+      "Официальное изображение Kingston KC3000 4096 ГБ"
+    ],
+    "Kingston KC3000 1024 ГБ SKC3000S/1024G" => [
+      "https://m.kak.cz/foto/kingston/325592/big/1024gb-ssd-kc3000-kingston-m2-pcie-40-nvme-1.jpg",
+      "Фото страницы товара Kingston KC3000 1024 ГБ"
+    ],
+    "Kingston KC3000 2048 ГБ SKC3000D/2048G" => [
+      "https://product.hstatic.net/200000420363/product/kingston-kc3000-2tb-m.2-nvme-pcie-4.0_7b7665eede184e989acd9bbae9a55a44_master.png",
+      "Фото страницы товара Kingston KC3000 2048 ГБ"
+    ],
+    "Kingston A400 480 ГБ SA400S37/480G" => [
+      "https://cf.shopee.com.my/file/627d36409e60693775b1974e05dd1966",
+      "Фото страницы товара Kingston A400 480 ГБ"
+    ],
+    "МЦСТ Эльбрус-8СВ" => [
+      "https://tehnoomsk.ru/wp-content/uploads/2018/09/elbrus-8sv_elbrus-8s2_russian_cpu_0.jpg",
+      "Фото процессора МЦСТ Эльбрус-8СВ"
+    ],
+    "МЦСТ 1Э8СВ-uATX (модуль с Эльбрус-8СВ)" => [
+      "/component-images/catalog/mcst-1e8sv-uatx.png",
+      "Фото платы МЦСТ из каталога вычислительных модулей"
+    ]
+  }.freeze
+
+  def self.fallback_image(name, category, manufacturer)
+    digest = Digest::SHA1.hexdigest("#{manufacturer}-#{name}")[0, 12]
+    "/component-images/catalog/#{category}-#{digest}.svg"
+  end
+
   def self.entries
     rows = []
     add = lambda do |name, brand, category, price, points, source, attributes = {}|
       specs = attributes.delete(:specs) || {}
+      image_url, image_credit = IMAGE_OVERRIDES[name] || [fallback_image(name, category, brand), "Уникальная карточка модели Build Wise"]
       rows << { name: name, manufacturer: brand, category: category, platform: "universal",
         price_cents: price * 100, performance: points, available: true, quiet: false,
         socket: nil, memory_type: nil, memory_gb: nil, capacity_gb: nil, power_watts: nil,
         description: "#{name}. Основные характеристики сверены со спецификацией производителя. Цена — ориентир для расчёта бюджета, наличие в магазинах не отслеживается.",
+        image_url: image_url, image_credit: image_credit,
         specs: specs.merge("source_url" => source, "verified_on" => "2026-10-30", "catalog" => "real-hardware-v1") }.merge(attributes)
     end
     intel_i3 = "https://www.intel.com/content/www/us/en/products/sku/132223/intel-core-i312100f-processor-12m-cache-up-to-4-30-ghz/specifications.html"
